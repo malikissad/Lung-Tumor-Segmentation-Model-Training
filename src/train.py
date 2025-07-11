@@ -69,7 +69,8 @@ def Train(image_path, mask_path, image_path_test, mask_path_test, num_epochs=20)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
 
-    criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(3.0).to(device))
+    pos_weight = (Y_train == 0).sum() / (Y_train == 1).sum()  # ≈ 595.0
+    criterion = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([pos_weight]).to(device))
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
     # 4. Boucle d'entraînement
