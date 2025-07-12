@@ -32,14 +32,28 @@ def preprocessing(chemin):
 #canal 3 recommender pour swin-unit
   X_canal = np.repeat(X_resize,3,axis=-1)
 
-# Normaliser uniquement les images
-  X_norm = (X_canal - X_canal.min()) / (X_canal.max() - X_canal.min())
+# # Normaliser uniquement les images
+#   X_norm = (X_canal - X_canal.min()) / (X_canal.max() - X_canal.min())
 
-# S'assurer que les masques sont bien binaires
-  Y_bin = (Y_resize > 0).astype(np.uint8)
+# # S'assurer que les masques sont bien binaires
+#   Y_bin = (Y_resize > 0).astype(np.uint8)
 
-  print(X_norm)
-  print(Y_bin)
+#   print(X_norm)
+#   print(Y_bin)
+
+  X_norm = np.zeros_like(X_canal)
+  
+  for i in range(X_canal.shape[0]):
+      img = X_canal[i]
+      img_min = img.min()
+      img_max = img.max()
+      if img_max > img_min:  # Éviter division par zéro
+        X_norm[i] = (img - img_min) / (img_max - img_min)
+      else:
+            X_norm[i] = img
+    
+  # ✅ CORRECTION 2: Masques binaires avec meilleure gestion
+  Y_bin = (Y_resize > 0.5).astype(np.float32)  # float32 pour PyTorch
 
 
   X_train, X_test, y_train, y_test = train_test_split(X_norm, Y_bin, test_size=0.2, random_state=42)
